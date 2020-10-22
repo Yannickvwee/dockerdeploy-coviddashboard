@@ -1,0 +1,14 @@
+
+services:
+  nginx:
+    image: 10.0.1.10:5000/dockerdeploycoviddashboard_nginx
+    build:
+      context: ./nginx/master
+    ports:
+      - "8080:80"
+  netapp:
+    image: 10.0.1.10:5000/dockerdeploycoviddashboard_netapp
+    build:
+      context: ./netapp/master
+    ports:
+      - "5000:80"
