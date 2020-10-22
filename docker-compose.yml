@@ -2,7 +2,7 @@ version: "3.3"
 services:
   nginx:
     build:
-      context: ./nginx/master
+      context: ./nginx
     ports:
       - "80:80"
   netapp:
