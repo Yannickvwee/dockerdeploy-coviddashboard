@@ -1,7 +1,7 @@
 
 services:
   nginx:
-    image: 10.0.1.10:5000/dockerdeploycoviddashboard_nginx
+    image: yannickvw/dockerdeploycoviddashboard_nginx
     build:
       context: ./nginx/master
     ports:
