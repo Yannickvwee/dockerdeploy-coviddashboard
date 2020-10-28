@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: coviddashboard-nginx
+  labels:
+    app: covidnginx
 spec:
   containers:
     - name: coviddashboard-nginx
