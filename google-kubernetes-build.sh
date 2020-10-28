@@ -1,9 +1,7 @@
 #!bin/bash
-cd ./nginx
-docker build --tag kubmaster/terraformingcloud/coviddashboard_nginx:latest .
-docker commit kubmaster/terraformingcloud/coviddashboard_nginx:latest
-docker push kubmaster/terraformingcloud/coviddashboard_nginx:latest
-cd ../netapp/master
-docker build --tag kubmaster/terraformingcloud/coviddashboard_netapp:latest .
-docker commit kubmaster/terraformingcloud/coviddashboard_netapp:latest
-docker push kubmaster/terraformingcloud/coviddashboard_netapp:latest
+#cd ./gitdir/nginx
+docker build --tag eu.gcr.io/terraformingcloud/coviddashboard_nginx:latest /gitdir/nginx .
+docker push eu.gcr.io/terraformingcloud/coviddashboard_nginx:latest
+#cd ../gitdir/netapp/master
+docker build --tag eu.gcr.io/terraformingcloud/coviddashboard_netapp:latest /gitdir/netapp/master .
+docker push eu.gcr.io/terraformingcloud/coviddashboard_netapp:latest

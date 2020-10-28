@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coviddashboard-netapp
+spec:
+  containers:
+    - name: coviddashboard-netapp
+      image: eu.gcr.io/terraformingcloud/coviddashboard_netapp:latest
+      ports:
+        - name: webapp port
+          containerPort: 5000
+          protocol: TCP
