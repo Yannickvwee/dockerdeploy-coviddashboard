@@ -7,6 +7,6 @@ spec:
     - name: coviddashboard-netapp
       image: eu.gcr.io/terraformingcloud/coviddashboard_netapp:latest
       ports:
-        - name: webapp port
+        - name: webapp-port
           containerPort: 5000
           protocol: TCP
