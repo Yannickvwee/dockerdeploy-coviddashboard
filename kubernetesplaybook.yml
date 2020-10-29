@@ -155,7 +155,7 @@
       command: kubectl apply -f /gitdir/coviddashboard-netapp.yml
 
     - name: expose netapp service
-      command: kubectl expose deployment coviddashboard-netapp --port=5000 --target-port=80 --type=NodePort --external-ip=SENDINSERT2
+      command: kubectl expose deployment coviddashboard-netapp --port=5000 --target-port=80 --type=NodePort --external-ip=SEDINSERT2
  
  
 
