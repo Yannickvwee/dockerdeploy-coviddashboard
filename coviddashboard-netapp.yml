@@ -1,18 +1,21 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: coviddashboard-netapp
 spec:
   replicas: 5
-  template: 
+  selector:
+    matchLabels:
+          app: covidnetapp
+  template:
     metadata:
       labels:
         app: covidnetapp
     spec:
       containers:
-        - name: coviddashboard-netapp
+        - name: covidnetapp
           image: eu.gcr.io/terraformingcloud/coviddashboard_netapp:latest
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 5000
               protocol: TCP

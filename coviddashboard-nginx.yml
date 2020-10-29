@@ -1,16 +1,19 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: coviddashboard-nginx
 spec:
   replicas: 5
-  template: 
+  selector:
+    matchLabels:
+          app: covidnginx
+  template:
     metadata:
       labels:
         app: covidnginx
     spec:
       containers:
-        - name: coviddashboard-nginx
+        - name: covidnginx
           image: eu.gcr.io/terraformingcloud/coviddashboard_nginx:latest
           ports:
             - name: http
