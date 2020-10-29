@@ -1,0 +1,166 @@
+  
+- hosts: all
+  tasks:
+    - name: updating
+      apt: 
+        update_cache: yes 
+        force_apt_get: yes 
+        cache_valid_time: 3600
+
+    - name: installing packages for add repo
+      apt: 
+        force_apt_get: yes
+        pkg:
+          - software-properties-common
+          - curl
+          - gnupg-agent
+          - apt-transport-https
+          - lsb-release
+          - ca-certificates
+
+    - name: Add an apt signing key for Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present   
+
+    - name: adding google apt key for Kubernetes
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+        
+    - name: Add apt repository for stable version
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+
+    - name: adding apt repo for kubernetes
+      apt_repository: 
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        filename: kubernetes.list
+        state: present
+
+    - name: installing packages
+      apt: 
+        force_apt_get: yes
+        pkg:
+          - docker-ce
+          - docker-ce-cli 
+          - containerd.io
+          - kubeadm
+          - kubelet
+          - kubectl
+          - git
+
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+
+    - name: Disable swap
+      command: swapoff -a
+      #when: ansible_swaptotal_mb > 0
+
+- hosts: kubernetesmaster
+  tasks:
+
+    - name: starting the kubernetes cluster
+      command: kubeadm init --node-name coviddashboardnode --pod-network-cidr=10.244.0.0/16
+      register: command_result
+      failed_when: "'ithasnotfailed' in command_result.stderr"
+
+    - name: start flannel
+      command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+    - name: make .kube dir
+      command: mkdir -p $HOME/.kube
+
+    - name: cp config
+      command: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+    - name: Generate join command
+      command: kubeadm token create --print-join-command
+      register: join_command
+    
+    - name: copy join command to local file 
+      local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+    - name: installing portainer
+      command: docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+
+- hosts: node
+  tasks:
+
+    - name: Copy the join command to server location
+      copy: src=join-command dest=/tmp/join-command.sh mode=0777
+    
+    - name: Join the node to cluster
+      command: sh /tmp/join-command.sh   
+
+- hosts: kubernetesmaster
+  tasks:
+
+    - name: setup GCR for docker
+      command: gcloud auth configure-docker --quiet
+
+    - name: make gitdir
+      file:
+        path: /gitdir
+        state: directory
+        mode: "0777"        
+
+    # - name: make gitdir
+    #   command: mkdir /gitdir
+    #   args:
+    #     chdir: /gitdir
+      
+    - name: pull the docker setup git 
+      git:  
+        repo: 'https://github.com/Yannickvwee/dockerdeploy-coviddashboard.git' 
+        dest: /gitdir
+        force: yes
+
+    - name: pull the coviddashboard git
+      git:  
+        repo: 'https://github.com/broadinstitute/covid19-testing.git' 
+        dest: /gitdir/nginx/master
+        force: yes
+
+    - name: pull the docker netapp git 
+      git:  
+        repo: 'https://github.com/looking4ward/nhs-cac-docker-dotnetwebapp.git' 
+        dest: /gitdir/netapp/master
+        force: yes
+
+    - name: wait for git pulls to finish
+      wait_for:
+        path: /gitdir/Dockerfile.dockerfile
+
+    - name: move dockerfile
+      command: mv /gitdir/Dockerfile.dockerfile /gitdir/nginx/Dockerfile
+
+    - name: script to build and push image to GCR
+      command: sh /gitdir/google-kubernetes-build.sh
+
+    - name: start coviddashboard_nginx service
+      command: kubectl apply -f /gitdir/coviddashboard-nginx.yml
+
+    - name: expose nginx service
+      command: kubectl expose deployment coviddashboard-nginx --port=80 --target-port=80 --type=NodePort --external-ip=SEDINSERT1
+      
+    - name: start coviddashboard_netapp service
+      command: kubectl apply -f /gitdir/coviddashboard-netapp.yml
+
+    - name: expose netapp service
+      command: kubectl expose deployment coviddashboard-netapp --port=5000 --target-port=80 --type=NodePort --external-ip=SENDINSERT2
+ 
+ 
+
+
+
+  # --private-key=~/.ssh/google_compute_engine --u=tim-z
+  # apt -y install software-properties-common dirmngr apt-transport-https lsb-release ca-certificates
+  # ansible-playbook --private-key=~/.ssh/google_compute_engine --u=root ansible.yml
