@@ -19,5 +19,16 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+          volumeMounts:
+            - name: nginxlogs
+              mountPath: /var/log/nginx
+      volumes:
+      - name: nginxlogs
+        hostPath:
+          path: /nginxlogs
+          type: Directory
 
-              
+
+
+
+            
