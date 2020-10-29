@@ -72,9 +72,6 @@
       register: command_result
       failed_when: "'ithasnotfailed' in command_result.stderr"
 
-    - name: start flannel
-      command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-
     - name: make .kube dir
       command: mkdir -p $HOME/.kube
 
@@ -87,6 +84,9 @@
     
     - name: copy join command to local file 
       local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+    - name: start flannel
+      command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
     - name: installing portainer
       command: docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
