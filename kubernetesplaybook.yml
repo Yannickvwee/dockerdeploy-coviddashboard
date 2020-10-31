@@ -169,10 +169,6 @@
         src: /nginxlogs/access.log
         dest: /nginxlogs/
   
-
-
-
-
   # --private-key=~/.ssh/google_compute_engine --u=tim-z
   # apt -y install software-properties-common dirmngr apt-transport-https lsb-release ca-certificates
   # ansible-playbook --private-key=~/.ssh/google_compute_engine --u=root ansible.yml
