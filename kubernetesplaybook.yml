@@ -156,8 +156,20 @@
 
     - name: expose netapp service
       command: kubectl expose deployment coviddashboard-netapp --port=5000 --target-port=80 --type=NodePort --external-ip=SEDINSERT2
- 
- 
+
+  - hosts: node
+    tasks:  
+    - name: 
+      wait_for:
+        path: /nginxlogs/access.log
+    
+    
+    - name: CollectLogfilesWithAnsibleFromAWS
+      fetch:
+        src: /nginxlogs/access.log
+        dest: /nginxlogs/
+  
+
 
 
 
