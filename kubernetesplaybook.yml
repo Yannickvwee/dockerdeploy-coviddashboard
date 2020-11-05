@@ -84,8 +84,8 @@
         dest: $HOME/.kube/config
         owner: root
         state: hard
-        register: command_result
-        failed_when: "'ithasnotfailed' in command_result.stderr"
+      register: command_result
+      failed_when: "'ithasnotfailed' in command_result.stderr"
 
     - name: Generate join command
       command: kubeadm token create --print-join-command
