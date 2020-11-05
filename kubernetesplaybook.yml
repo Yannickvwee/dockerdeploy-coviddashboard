@@ -75,8 +75,15 @@
     - name: make .kube dir
       command: mkdir -p $HOME/.kube
 
+    # - name: cp config
+    #   command: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
     - name: cp config
-      command: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+      file:
+        src: /etc/kubernetes/admin.conf
+        dest: $HOME/.kube/config
+        owner: root
+        state: hard
 
     - name: Generate join command
       command: kubeadm token create --print-join-command
@@ -99,7 +106,7 @@
     
     - name: Join the node to cluster
       command: sh /tmp/join-command.sh   
-      
+
     - name: create log folder
       file:
         path: /nginxlogs
