@@ -99,6 +99,12 @@
     
     - name: Join the node to cluster
       command: sh /tmp/join-command.sh   
+      
+    - name: create log folder
+      file:
+        path: /nginxlogs
+        state: directory
+        mode: "0777"
 
 - hosts: kubernetesmaster
   tasks:
